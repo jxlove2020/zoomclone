@@ -10,12 +10,7 @@ html(lang="en")
     header
       h1 ZoomClone
     main
-      form#nick
-        input(type="text", placeholder="write a nick", required)
-        button Save
-      ul
-      form#message
-       input(type="text", placeholder="write a message", required)
-       button Send
-    
-    script(src="js/app.js")
+
+    //- 자바스크립트 순서 중요
+    script(src="/socket.io/socket.io.js") 
+    script(src="js/app.js") 
