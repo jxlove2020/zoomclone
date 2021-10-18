@@ -37,6 +37,7 @@ function handleNickSubmit(event) {
   const input = nickForm.querySelector('input');
   // console.log(input.value);
   socket.send(makeMessage('nickname', input.value));
+  input.value = '';
 }
 
 messageForm.addEventListener('submit', handleSubmit);
