@@ -1,5 +1,5 @@
 import http from 'http';
-import WebSocket, { createWebSocketStream } from 'ws';
+import WebSocket from 'ws';
 import express from 'express';
 
 const app = express();
@@ -26,9 +26,10 @@ wss.on('connection', socket => {
     console.log('Disconnected from the Server ❌');
   });
   socket.on('message', message => {
-    sockets.forEach(aSocket => aSocket.send(message));
+    console.log(message.toString());
+    sockets.forEach(aSocket => aSocket.send(message.toString()));
   });
-  socket.send('hello ~ ');
+  // socket.send('hello ~ ');
 });
 
 server.listen(3000, handleListen);
