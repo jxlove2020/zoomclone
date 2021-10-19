@@ -17,8 +17,11 @@ html(lang="en")
       div#room
         h3
         ul
-        form
-          input(placeholder="write a message", required, type="text")
+        form#name
+          input(placeholder="nickname", required, type="text")
+          button Save
+        form#msg
+          input(placeholder="message", required, type="text")
           button Send
 
     //- 자바스크립트 순서 중요
