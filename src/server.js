@@ -15,6 +15,22 @@ app.get('/*', (_, res) => res.redirect('/'));
 const httpServer = http.createServer(app);
 const wsServer = SocketIO(httpServer);
 
+// room List 생성 / adapter
+function publicRooms() {
+  const {
+    sockets: {
+      adapter: { sids, rooms },
+    },
+  } = wsServer;
+  const publicRooms = [];
+  rooms.forEach((_, key) => {
+    if (sids.get(key) === undefined) {
+      publicRooms.push(key);
+    }
+  });
+  return publicRooms;
+}
+
 wsServer.on('connection', socket => {
   socket['nickname'] = 'Anonymous';
   socket.onAny(event => {
@@ -26,11 +42,17 @@ wsServer.on('connection', socket => {
     done();
     // 입장 메시지
     socket.to(roomName).emit('welcome', socket.nickname);
+    // 새로운 room 이 생겼음을 서버에 알림 ( room 추가/삭제 )
+    wsServer.sockets.emit('room_change', publicRooms());
   });
   socket.on('disconnecting', () => {
     socket.rooms.forEach(room => {
       socket.to(room).emit('bye', socket.nickname);
     });
+  });
+  // 새로고침시 room 밖으로 빠져나감
+  socket.on('disconnect', () => {
+    wsServer.sockets.emit('room_change', publicRooms());
   });
   socket.on('new_message', (msg, room, done) => {
     socket.to(room).emit('new_message', `${socket.nickname}: ${msg}`);
