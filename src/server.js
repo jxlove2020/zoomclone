@@ -16,9 +16,20 @@ const wsServer = SocketIO(httpServer);
 
 wsServer.on('connection', socket => {
   socket.on('enter_room', (roomName, done) => {
+    // room 입장
     socket.join(roomName);
     done();
+    // 입장 메시지
     socket.to(roomName).emit('welcome');
+  });
+  socket.on('disconnecting', () => {
+    socket.rooms.forEach(room => {
+      socket.to(room).emit('bye');
+    });
+  });
+  socket.on('new_message', (msg, room, done) => {
+    socket.to(room).emit('new_message', msg);
+    done();
   });
 });
 
