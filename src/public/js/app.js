@@ -5,9 +5,15 @@ const muteBtn = document.getElementById('mute');
 const cameraBtn = document.getElementById('camera');
 const camerasSelect = document.getElementById('cameras');
 
+const welcome = document.getElementById('welcome');
+const call = document.getElementById('call');
+
+call.hidden = true;
+
 let myStream;
 let muted = false;
 let cameraOff = false;
+let roomName;
 
 // 카메라 정보 가져오기
 async function getCameras() {
@@ -37,7 +43,7 @@ async function getCameras() {
 }
 
 // 오디오/비디오 화면에 뿌려주기
-async function getMedia(devicdId) {
+async function getMedia(deviceId) {
   const initialConstraints = {
     audio: true,
     video: { fancingmode: 'user' },
@@ -48,7 +54,7 @@ async function getMedia(devicdId) {
   };
   try {
     myStream = await navigator.mediaDevices.getUserMedia(
-      devicdId ? cameraConstraints : initialConstraints
+      deviceId ? cameraConstraints : initialConstraints
     );
     myFace.srcObject = myStream;
     if (!deviceId) {
@@ -58,8 +64,6 @@ async function getMedia(devicdId) {
     console.log(e);
   }
 }
-
-getMedia();
 
 // Mute 버튼 컨트롤
 function handleMuteBtn() {
@@ -97,3 +101,25 @@ async function handleCameraChange() {
 muteBtn.addEventListener('click', handleMuteBtn);
 cameraBtn.addEventListener('click', handleCameraBtn);
 camerasSelect.addEventListener('input', handleCameraChange);
+
+welcomeForm = welcome.querySelector('form');
+
+function startMedia() {
+  welcome.hidden = true;
+  call.hidden = false;
+  getMedia();
+}
+
+function handleWelcomeSubmit(event) {
+  event.preventDefault();
+  const input = welcomeForm.querySelector('input');
+  socket.emit('join_room', input.value, startMedia);
+  roomName = input.value;
+  input.value = '';
+}
+
+welcomeForm.addEventListener('submit', handleWelcomeSubmit);
+
+socket.on('welcome', () => {
+  console.log('someone joined');
+});
