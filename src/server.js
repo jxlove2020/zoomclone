@@ -1,7 +1,7 @@
 import http from 'http';
-import SocketIO from 'socket.io';
+import { Server } from 'socket.io';
+import { instrument } from '@socket.io/admin-ui';
 import express from 'express';
-import { Console } from 'console';
 
 const app = express();
 
@@ -13,7 +13,16 @@ app.get('/*', (_, res) => res.redirect('/'));
 
 // http 서버위에 wss 서버를 만듦, 동일한 포트에서 http, wss 사용
 const httpServer = http.createServer(app);
-const wsServer = SocketIO(httpServer);
+const wsServer = new Server(httpServer, {
+  cors: {
+    origin: ['https://admin.socket.io'],
+    credentials: true,
+  },
+});
+
+instrument(wsServer, {
+  auth: false,
+});
 
 // room List 생성 / adapter
 function publicRooms() {
