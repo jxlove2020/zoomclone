@@ -20,6 +20,7 @@ async function getCameras() {
   try {
     // 연결된 디바이스 정보 가져오기
     const devices = await navigator.mediaDevices.enumerateDevices();
+    // console.log(devices);
     // 전체 디바이스 중에서 카메라 정보만 가져오기
     const cameras = devices.filter(device => device.kind === 'videoinput');
 
@@ -44,6 +45,7 @@ async function getCameras() {
 
 // 오디오/비디오 화면에 뿌려주기
 async function getMedia(deviceId) {
+  // 셀피 카메라 모드 ( fancingmode: 'user' )
   const initialConstraints = {
     audio: true,
     video: { fancingmode: 'user' },
@@ -56,9 +58,10 @@ async function getMedia(deviceId) {
     myStream = await navigator.mediaDevices.getUserMedia(
       deviceId ? cameraConstraints : initialConstraints
     );
+
     myFace.srcObject = myStream;
     if (!deviceId) {
-      await getCameras;
+      await getCameras();
     }
   } catch (e) {
     console.log(e);
@@ -67,9 +70,12 @@ async function getMedia(deviceId) {
 
 // Mute 버튼 컨트롤
 function handleMuteBtn() {
+  // 오디오 뮤트 토글
   myStream.getAudioTracks().forEach(track => {
     track.enabled = !track.enabled;
   });
+
+  // 버튼 텍스트 변환
   if (!muted) {
     muteBtn.innerText = 'Unmute';
     muted = true;
@@ -81,9 +87,12 @@ function handleMuteBtn() {
 
 // 카메라 버튼 컨트롤
 function handleCameraBtn() {
+  // 카메라화면 켜고 끄는 토글
   myStream.getVideoTracks().forEach(track => {
-    track.enabled = enabled;
+    track.enabled = !track.enabled;
   });
+
+  // 버튼 텍스트 변환
   if (cameraOff) {
     cameraBtn.innerText = 'Turn Camera Off';
     cameraOff = false;
@@ -95,7 +104,7 @@ function handleCameraBtn() {
 
 async function handleCameraChange() {
   // console.log(camerasSelect.value);
-  await getMedia();
+  await getMedia(camerasSelect.value);
 }
 
 muteBtn.addEventListener('click', handleMuteBtn);
